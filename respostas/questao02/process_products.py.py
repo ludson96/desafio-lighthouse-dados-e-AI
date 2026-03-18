@@ -14,6 +14,7 @@ Parte 2 — Converta os valores para o tipo numérico.
 Parte 3 — Remova as duplicatas. """
 
 import pandas as pd
+from pathlib import Path
 
 def padronizar_categoria(categoria):
     """Função auxiliar para padronizar os erros de digitação nas categorias."""
@@ -31,10 +32,12 @@ def padronizar_categoria(categoria):
     return categoria
 
 def normalizar_dados():
-    caminho_csv = r"c:\Users\Ludso\Desktop\Arquivos do desafio final\produtos_raw.csv"
-    
-    # Carregando o dataset original
-    df = pd.read_csv(caminho_csv)
+    BASE_DIR = Path(__file__).resolve().parents[2]
+
+    data_path = BASE_DIR / "data" / "raw" / "produtos_raw.csv"
+
+    # Carregar o dataset sem aplicar nenhum tratamento
+    df = pd.read_csv(data_path)
     
     # Parte 1 — Padronize os nomes das categorias de produtos
     df['actual_category'] = df['actual_category'].apply(padronizar_categoria)

@@ -30,13 +30,16 @@ qualidade dos dados (valores nulos ou inconsistentes),
 e se você considera que o dataset está pronto para análises ou se exigiria tratamento prévio. """
 
 import pandas as pd
+from pathlib import Path
 
 def realizar_eda():
-    # Caminho do dataset fornecido
-    caminho_csv = r"c:\Users\Ludso\Desktop\Arquivos do desafio final\vendas_2023_2024.csv"
-    
+
+    BASE_DIR = Path(__file__).resolve().parents[2]
+
+    data_path = BASE_DIR / "data" / "raw" / "vendas_2023_2024.csv"
+
     # Carregar o dataset sem aplicar nenhum tratamento
-    df = pd.read_csv(caminho_csv)
+    df = pd.read_csv(data_path)
 
     print("--- Parte 1: Visão geral do dataset ---")
     linhas, colunas = df.shape
