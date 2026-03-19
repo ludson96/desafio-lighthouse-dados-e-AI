@@ -31,8 +31,9 @@ def processar_custos_importacao():
     df['usd_price'] = df['usd_price'].astype(float)
     
     # Salvar em CSV sem o índice do Pandas
-    df.to_csv(csv_output_path, index=False, encoding='utf-8-sig')
+    df.to_csv(csv_output_path, index=False, encoding='utf-8')
     print(f"--- Sucesso! Arquivo CSV gerado em: {csv_output_path} ---")
+    print(f"Total de entradas de importação geradas após normalização: {len(df)}")
 
 if __name__ == "__main__":
     processar_custos_importacao()
