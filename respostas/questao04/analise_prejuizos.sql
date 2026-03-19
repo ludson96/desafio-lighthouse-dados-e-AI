@@ -3,7 +3,7 @@
 -- NOTA ARQUITETURAL SOBRE A COTAÇÃO DO BCB:
 -- Como a linguagem SQL não realiza requisições HTTP nativas para APIs externas (Banco Central),
 -- é uma premissa obrigatória de arquitetura de dados que essa informação seja previamente extraída
--- (ex: via script Python) e carregada no banco de dados. 
+-- via script Python e carregada no banco de dados. 
 -- Portanto, este script assume a existência da tabela `cotacoes_bcb` (data, taxa_cambio) como 
 -- resultado dessa etapa de ingestão (Pipeline ELT). Também assume-se que a coluna `sale_date`
 -- foi previamente padronizada para o tipo DATE.
@@ -72,20 +72,3 @@ GROUP BY
     id_product
 ORDER BY 
     prejuizo_total DESC;
-
-
--- ====================================================================================
--- Questão 4.2 - Validação (Maior porcentagem de perda financeira relativa)
--- ====================================================================================
-
-SELECT 
-    id_product,
-    SUM(receita_venda) AS receita_total,
-    SUM(prejuizo_transacao) AS prejuizo_total,
-    (SUM(prejuizo_transacao) / NULLIF(SUM(receita_venda), 0)) AS percentual_perda
-FROM Calculo_Prejuizo
-GROUP BY 
-    id_product
-ORDER BY 
-    percentual_perda DESC
-LIMIT 1;
