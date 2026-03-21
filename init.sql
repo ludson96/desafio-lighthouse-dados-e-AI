@@ -30,3 +30,30 @@ COPY produtos_raw(name, price, code, actual_category)
 FROM '/tmp/produtos_raw.csv'
 DELIMITER ','
 CSV HEADER;
+
+-- Cria a tabela de custos de importação
+CREATE TABLE IF NOT EXISTS custos_importacao (
+    product_id INT,
+    product_name TEXT,
+    category TEXT,
+    start_date DATE,
+    usd_price NUMERIC
+);
+
+-- Copia os dados de custos de importação
+COPY custos_importacao(product_id, product_name, category, start_date, usd_price)
+FROM '/tmp/custos_importacao.csv'
+DELIMITER ','
+CSV HEADER;
+
+-- Cria a tabela de cotações do BCB
+CREATE TABLE IF NOT EXISTS cotacoes_bcb (
+    data DATE,
+    taxa_cambio NUMERIC
+);
+
+-- Copia os dados de cotações
+COPY cotacoes_bcb(data, taxa_cambio)
+FROM '/tmp/cotacoes_bcb.csv'
+DELIMITER ','
+CSV HEADER;

@@ -30,9 +30,9 @@ FROM vendas_2023_2024;
 
 -- Para a coluna "total", calcular Valor mínimo, Valor máximo e Valor médio
 SELECT 
-    ROUND(MIN(total), 2) AS valor_minimo,
-    ROUND(MAX(total), 2) AS valor_maximo,
-    ROUND(AVG(total), 2) AS valor_medio
+    ROUND(CAST(MIN(total) AS numeric), 2) AS valor_minimo,
+    ROUND(CAST(MAX(total) AS numeric), 2) AS valor_maximo,
+    ROUND(CAST(AVG(total) AS numeric), 2) AS valor_medio
 FROM vendas_2023_2024;
 
 -- ==========================================

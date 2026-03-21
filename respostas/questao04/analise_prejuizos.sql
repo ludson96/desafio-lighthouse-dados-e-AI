@@ -15,17 +15,17 @@ WITH Vendas_Com_Custo AS (
         v.id_product,
         v.qtd,
         v.total,
-        v.sale_date,
+        CAST(v.sale_date AS DATE) AS sale_date,
         c.product_name,
         c.usd_price,
         ROW_NUMBER() OVER(
             PARTITION BY v.id 
-            ORDER BY c.start_date DESC
+            ORDER BY CAST(c.start_date AS DATE) DESC
         ) AS rn_custo
     FROM vendas_2023_2024 v
     LEFT JOIN custos_importacao c 
         ON v.id_product = c.product_id 
-        AND c.start_date <= v.sale_date
+        AND CAST(c.start_date AS DATE) <= CAST(v.sale_date AS DATE)
 ),
 Vendas_Com_Cotacao AS (
     -- Passo 2: Encontrar a taxa de câmbio mais recente em relação à data da venda (cobrindo finais de semana)
@@ -40,12 +40,12 @@ Vendas_Com_Cotacao AS (
         cb.taxa_cambio,
         ROW_NUMBER() OVER(
             PARTITION BY vc.id_venda 
-            ORDER BY cb.data DESC
+            ORDER BY CAST(cb.data AS DATE) DESC
         ) AS rn_cotacao
     FROM Vendas_Com_Custo vc
     LEFT JOIN cotacoes_bcb cb 
-        ON cb.data <= vc.sale_date
-    WHERE vc.rn_custo = 1 -- Filtra apenas o último custo válido de importação
+        ON CAST(cb.data AS DATE) <= vc.sale_date
+    WHERE vc.rn_custo = 1 
 ),
 Calculo_Prejuizo AS (
     -- Passo 3: Calcular custo em reais e identificar as perdas (apenas transações onde Custo > Receita)
@@ -59,7 +59,7 @@ Calculo_Prejuizo AS (
             ELSE 0 
         END AS prejuizo_transacao
     FROM Vendas_Com_Cotacao
-    WHERE rn_cotacao = 1 -- Filtra apenas a última taxa de câmbio válida
+    WHERE rn_cotacao = 1 
 )
 -- Passo 4: Agregação por id_produto conforme os requisitos (Foco: Maior prejuízo absoluto)
 SELECT 

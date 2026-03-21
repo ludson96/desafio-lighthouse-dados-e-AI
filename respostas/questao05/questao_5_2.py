@@ -26,6 +26,9 @@ def validar_questao_5():
     # 1. Limpeza das categorias
     df_produtos['categoria_consolidada'] = df_produtos['actual_category'].apply(clean_category)
     
+    # Remove os códigos de produtos duplicados para evitar que as vendas se multipliquem no merge
+    df_produtos = df_produtos.drop_duplicates(subset=['code'])
+    
     # 2. Junção dos dados (trazendo a categoria limpa para as vendas)
     df_merged = df_vendas.merge(
         df_produtos[['code', 'categoria_consolidada']], 

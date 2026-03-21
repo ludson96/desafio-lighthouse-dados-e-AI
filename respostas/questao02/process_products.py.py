@@ -1,18 +1,3 @@
-""" Cenário
-
-Gabriel percebeu que seus dados estão desorganizados e sem um padrão definido e isso pode tornar o trabalho de análise mais trabalhoso. Precisamos melhorar isso utilizando o Python.
-
-Sua missão é realizar uma normalização dos dados presentes no arquivo produtos_raw.csv.
-
-Premissas obrigatórias
-Utilize apenas o CSV produtos_raw.csv
-Utilize obrigatoriamente Python 3
-
-Tarefas: 
-Parte 1 — Padronize os nomes das categorias de produtos em: eletrônicos, propulsão e ancoragem.
-Parte 2 — Converta os valores para o tipo numérico.
-Parte 3 — Remova as duplicatas. """
-
 import pandas as pd
 from pathlib import Path
 
@@ -59,6 +44,10 @@ def normalizar_dados():
     print(f"Total de linhas após a remoção de duplicatas: {len(df)}")
     print("\nVisualização das primeiras linhas:")
     print(df.head())
+    
+    # Para salvar as alterações em um novo arquivo (recomendado para não perder o raw original):
+    output_path = BASE_DIR / "data" / "processed" / "produtos_processados.csv"
+    df.to_csv(output_path, index=False)
 
 if __name__ == "__main__":
     normalizar_dados()

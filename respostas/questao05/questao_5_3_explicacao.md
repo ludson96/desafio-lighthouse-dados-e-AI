@@ -22,8 +22,8 @@ Isso gerou uma coluna numérica para cada cliente representando quantas categori
 O processo exigiu isolar os 10 clientes ("Fiéis") do resto da base antes da agregação final. Fizemos isso em duas etapas:
 
 1. **Criação da Lista VIP:** Peguei os clientes já filtrados pela diversidade, calculei o Ticket Médio (Total Gasto / Frequência) e os ordenei do maior para o menor. Utilizei o ID em ordem crescente para critério de desempate e cortei a lista no décimo registro (`LIMIT 10` no SQL e `.head(10)` no Pandas).
-2. **Filtro Estrito no Dataset Principal:** Com essa pequena "lista" contendo apenas os 10 IDs VIPs em mãos, voltei ao dataset bruto de vendas e fiz uma triagem. 
+2. **Garantia de Unicidade dos Produtos:** Antes de calcular os volumes, garanti que o catálogo de produtos possuísse apenas IDs únicos. Se fizéssemos a junção (`Merge`/`JOIN`) com produtos duplicados no catálogo, ocorrerá uma "explosão cartesiana", multiplicando transações e inflando a contagem de itens de forma irreal.
+3. **Filtro Estrito no Dataset Principal:** Com essa pequena "lista" contendo apenas os 10 IDs VIPs em mãos, voltei ao dataset bruto de vendas e fiz uma triagem. 
    - No SQL, isso se deu através de um `INNER JOIN` entre as transações de venda e a tabela virtual (`CTE`) dos clientes de elite. 
-   - No Python, usei o filtro lógico `df_merged['id_client'].isin(top_10_ids)`.
-
-Essa operação atua como um funil: qualquer venda registrada que não pertencesse a um dos 10 IDs da lista era imediatamente descartada. Só com os dados perfeitamente isolados para esse grupo é que agrupei novamente pela categoria do produto e realizei a soma da quantidade comprada (`SUM(qtd)`).
+   
+Essa operação atua como um funil: qualquer venda registrada que não pertencesse a um dos 10 IDs da lista VIP era imediatamente descartada. Só com os dados perfeitamente isolados e deduplicados para esse grupo é que agrupei novamente pela categoria do produto e realizei a soma da quantidade comprada (`SUM(qtd)`).

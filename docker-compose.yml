@@ -9,6 +9,8 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./data/raw/vendas_2023_2024.csv:/tmp/vendas_2023_2024.csv
       - ./data/raw/produtos_raw.csv:/tmp/produtos_raw.csv
+      - ./data/raw/custos_importacao.csv:/tmp/custos_importacao.csv
+      - ./data/raw/cotacoes_bcb.csv:/tmp/cotacoes_bcb.csv
     ports:
       - 5433:5432
 
