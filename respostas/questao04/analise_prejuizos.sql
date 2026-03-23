@@ -19,7 +19,7 @@ WITH Vendas_Com_Custo AS (
         c.product_name,
         c.usd_price,
         ROW_NUMBER() OVER(
-            PARTITION BY v.id 
+            PARTITION BY v.id, v.id_product 
             ORDER BY CAST(c.start_date AS DATE) DESC
         ) AS rn_custo
     FROM vendas_2023_2024 v
@@ -39,7 +39,7 @@ Vendas_Com_Cotacao AS (
         vc.usd_price,
         cb.taxa_cambio,
         ROW_NUMBER() OVER(
-            PARTITION BY vc.id_venda 
+            PARTITION BY vc.id_venda, vc.id_product 
             ORDER BY CAST(cb.data AS DATE) DESC
         ) AS rn_cotacao
     FROM Vendas_Com_Custo vc
@@ -71,4 +71,4 @@ FROM Calculo_Prejuizo
 GROUP BY 
     id_product
 ORDER BY 
-    prejuizo_total DESC;
+    percentual_perda DESC;

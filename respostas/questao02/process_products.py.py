@@ -45,7 +45,7 @@ def normalizar_dados():
     print("\nVisualização das primeiras linhas:")
     print(df.head())
     
-    # Para salvar as alterações em um novo arquivo (recomendado para não perder o raw original):
+    # Para salvar as alterações em um novo arquivo
     output_path = BASE_DIR / "data" / "processed" / "produtos_processados.csv"
     df.to_csv(output_path, index=False)
 

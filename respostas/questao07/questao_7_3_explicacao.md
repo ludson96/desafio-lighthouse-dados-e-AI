@@ -1,22 +1,36 @@
-# Questão 7.3 - Explicação do Modelo Baseline
+# Questão 7.3 - Explicação da Previsão de Demanda
 
 ### 1. Como o baseline foi construído?
-O baseline foi construído seguindo um processo clássico de manipulação de séries temporais:
-1. **Isolamento do Produto:** Buscamos o ID numérico correspondente ao "Motor de Popa Yamaha Evo Dash 155HP" na base de produtos e filtramos o histórico de vendas apenas para ele.
-2. **Agregação Diária:** Somamos a quantidade vendida do produto por dia (`GROUP BY sale_date`).
-3. **Preenchimento de Lacunas (Resampling):** Criamos um calendário contínuo cobrindo desde a primeira venda até o final do período de teste (31/01/2024). Inserimos o valor `0` para os dias em que a loja operou, mas não vendeu o motor. Isso é fundamental, pois modelos temporais exigem espaçamento constante.
-4. **Cálculo da Média Móvel:** Calculamos a média matemática das vendas realizadas na janela dos últimos 7 dias.
+O baseline foi construído utilizando um modelo simples de **média móvel de 7 dias** aplicado à série temporal de vendas do produto.
+
+O processo seguiu as seguintes etapas:
+
+1. **Isolamento do Produto:** Foi identificado o ID correspondente ao produto *"Motor de Popa Yamaha Evo Dash 155HP"* na base de produtos e filtrado o histórico de vendas apenas para esse item.
+2. **Agregação diária:** As vendas foram agregadas por data, somando a quantidade vendida em cada dia.
+3. **Criação de calendário contínuo:** Foi criado um calendário diário contínuo desde a primeira venda registrada até 31/01/2024. Os dias sem venda foram preenchidos com valor **0**, garantindo uma série temporal com espaçamento constante entre as observações.
+4. **Cálculo da média móvel:** Para cada dia foi calculada a **média das vendas dos 7 dias anteriores**, gerando a previsão diária utilizada como baseline.
+
+---
 
 ### 2. Como evitou *data leakage* (vazamento de dados)?
-Na previsão de séries temporais, *data leakage* ocorre quando você acidentalmente usa informações do "futuro" para prever um dado momento. 
+*Data leakage* ocorre quando informações do futuro são usadas para gerar previsões do passado ou do presente.
 
-No código Pandas, isso foi evitado utilizando o método **`.shift(1)`** imediatamente antes do `.rolling(window=7).mean()`. 
-* Sem o `shift(1)`, a média móvel de 7 dias para a data de *hoje* (dia `D`) incluiria as vendas do próprio dia de *hoje* (`D` até `D-6`). Isso passaria a "resposta da prova" para o modelo.
-* Com o `shift(1)`, nós "empurramos" a série um dia para baixo. Assim, a previsão para o dia de *hoje* (`D`) olha estritamente e exclusivamente para o que aconteceu de **ontem para trás** (`D-1` até `D-7`), respeitando perfeitamente a linha do tempo do mundo real.
+Para evitar esse problema, foi utilizado o método **`.shift(1)`** antes do cálculo da média móvel:
 
-### 3. Uma limitação do modelo proposto.
-A Média Móvel de curto prazo (7 dias) tem **"memória curta"** e é puramente reativa, o que a torna incapaz de antecipar **Sazonalidades** ou **Tendências** de longo prazo.
+```python
+.shift(1).rolling(window=7).mean()
+```
 
-No enunciado da questão, é mencionado que no "verão" o estoque acabou. O modelo de Média Móvel de 7 dias não sabe o que é o "verão" nem se lembra do que ocorreu no ano anterior. Ele só vai começar a prever vendas mais altas depois que a explosão de vendas já tiver começado e inflado os 7 dias imediatamente anteriores, falhando totalmente em ajudar o departamento de compras a se preparar com antecedência.
+O `shift(1)` desloca a série em um dia, garantindo que a previsão para o dia **D** utilize apenas informações dos dias **D-1 até D-7**.
 
-Além disso, a Média Móvel lida muito mal com **demanda intermitente**. Como motores de popa de alto valor geralmente não vendem todos os dias (muitos zeros seguidos), quando ocorre uma venda isolada, o modelo "espalha" o pico de forma fracionada nos 7 dias seguintes (prevendo coisas como 0.14 motores por dia), o que não é prático para a gestão de estoque do mundo real.
+Sem esse deslocamento, a média móvel incluiria o valor do próprio dia que está sendo previsto, o que significaria utilizar informação que ainda não estaria disponível no momento da previsão.
+
+---
+
+### 3. Uma limitação do modelo proposto
+
+A média móvel é um modelo simples que considera apenas os valores mais recentes da série, sem capturar **tendências ou sazonalidades**.
+
+No contexto do problema, o enunciado menciona aumento de vendas no **verão**, indicando um possível padrão sazonal. A média móvel de 7 dias não consegue antecipar esse tipo de comportamento, pois reage apenas às vendas recentes.
+
+Além disso, o método pode gerar previsões fracionadas (ex.: 0.14 unidades por dia), o que não representa bem a realidade de produtos de alto valor vendidos de forma esporádica.
