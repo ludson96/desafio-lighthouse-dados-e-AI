@@ -1,9 +1,3 @@
-"""
-Questão 7 - Previsão de demanda
-Modelo Baseline (Média Móvel de 7 dias) para o produto
-"Motor de Popa Yamaha Evo Dash 155HP"
-"""
-
 import pandas as pd
 from pathlib import Path
 
@@ -19,9 +13,6 @@ def prever_demanda_yamaha():
     df_vendas = pd.read_csv(vendas_path)
     df_produtos = pd.read_csv(produtos_path)
 
-    # -------------------------------------------------------------
-    # Limpeza básica
-    # -------------------------------------------------------------
     # Remover registros inválidos e padronizar o formato de datas
     df_vendas = df_vendas.dropna(subset=["id_client"])
     df_vendas["sale_date"] = pd.to_datetime(
@@ -56,9 +47,7 @@ def prever_demanda_yamaha():
 
     print(f"Produto encontrado! ID do catálogo: {id_yamaha}")
 
-    # -------------------------------------------------------------
     # Filtrar vendas apenas do produto alvo
-    # -------------------------------------------------------------
     df_vendas_prod = df_vendas[df_vendas["id_product"] == id_yamaha].copy()
 
     # Agrupar vendas por dia
@@ -68,11 +57,8 @@ def prever_demanda_yamaha():
 
     print("3. Construindo calendário contínuo...")
 
-    # -------------------------------------------------------------
     # Criar calendário completo para não perder dias sem venda
-    # (importante para séries temporais)
-    # -------------------------------------------------------------
-    data_min = vendas_diarias["sale_date"].min()
+    data_min = df_vendas["sale_date"].min()
     data_max = pd.to_datetime("2024-01-31")
 
     calendario = pd.DataFrame(
@@ -89,12 +75,8 @@ def prever_demanda_yamaha():
 
     print("4. Calculando Média Móvel de 7 dias...")
 
-    # -------------------------------------------------------------
-    # Modelo baseline: média móvel dos últimos 7 dias
-    #
     # shift(1) evita DATA LEAKAGE:
     # a previsão do dia D usa apenas dados de D-7 até D-1
-    # -------------------------------------------------------------
     df_completo["previsao_mm7"] = (
         df_completo["qtd"]
         .shift(1)
@@ -104,12 +86,10 @@ def prever_demanda_yamaha():
 
     print("5. Avaliando modelo (MAE)...")
 
-    # -------------------------------------------------------------
     # Separação do conjunto de teste
     # Conforme o enunciado:
     # treino -> até 31/12/2023
     # teste  -> Janeiro de 2024
-    # -------------------------------------------------------------
     teste = df_completo[
         (df_completo["sale_date"] >= "2024-01-01")
         & (df_completo["sale_date"] <= "2024-01-31")
@@ -130,9 +110,6 @@ def prever_demanda_yamaha():
     print(f"MAE: {mae:.2f} unidades de erro médio por dia")
     print("=" * 60)
 
-    # -------------------------------------------------------------
-    # Questão 5.a
-    # -------------------------------------------------------------
     print("\nQuestão 5.a - O baseline é adequado para esse produto?")
 
     print(
@@ -143,9 +120,6 @@ def prever_demanda_yamaha():
         "respostas lentas às mudanças de padrão."
     )
 
-    # -------------------------------------------------------------
-    # Questão 5.b
-    # -------------------------------------------------------------
     print("\nQuestão 5.b - Cite uma limitação desse método.")
 
     print(
@@ -155,9 +129,6 @@ def prever_demanda_yamaha():
         "períodos específicos do ano."
     )
 
-    # -------------------------------------------------------------
-    # Questão 7.2
-    # -------------------------------------------------------------
     print("\nQuestão 7.2 - Soma da previsão na primeira semana de Janeiro...")
 
     primeira_semana = teste[

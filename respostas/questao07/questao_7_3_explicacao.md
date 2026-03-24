@@ -7,7 +7,7 @@ O processo seguiu as seguintes etapas:
 
 1. **Isolamento do Produto:** Foi identificado o ID correspondente ao produto *"Motor de Popa Yamaha Evo Dash 155HP"* na base de produtos e filtrado o histórico de vendas apenas para esse item.
 2. **Agregação diária:** As vendas foram agregadas por data, somando a quantidade vendida em cada dia.
-3. **Criação de calendário contínuo:** Foi criado um calendário diário contínuo desde a primeira venda registrada até 31/01/2024. Os dias sem venda foram preenchidos com valor **0**, garantindo uma série temporal com espaçamento constante entre as observações.
+3. **Criação de calendário contínuo:** Foi criado um calendário diário contínuo desde o início do histórico de vendas geral da loja até 31/01/2024. Os dias sem venda do produto específico foram preenchidos com valor **0**, garantindo uma série temporal com espaçamento constante entre as observações.
 4. **Cálculo da média móvel:** Para cada dia foi calculada a **média das vendas dos 7 dias anteriores**, gerando a previsão diária utilizada como baseline.
 
 ---
