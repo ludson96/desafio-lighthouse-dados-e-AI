@@ -1,29 +1,44 @@
-# Questão 5.3 - Explicação da Lógica
+1. Como você realizou a limpeza das categorias?
 
-### 1. Como você realizou a limpeza das categorias?
-A limpeza foi baseada na padronização de texto e busca por padrões fonéticos/escritos (substrings). O processo seguiu estas etapas:
-- **Normalização preliminar:** Primeiro, removi todos os espaços em branco no meio das palavras e converti os textos inteiros para letras maiúsculas (no SQL usando `UPPER(REPLACE(coluna, ' ', ''))` e no Python com `.upper().replace(' ', '')`). Isso neutralizou erros como "E L E T R Ô N I C O S" ou "eLeTrÔnIcOs".
-- **Regras de Associação Categórica:** Em vez de tentar mapear todas as variações incorretas uma a uma, busquei a raiz das palavras:
-  - Tudo que iniciava com o radical `"ELETR"` virou **"ELETRONICOS"** (corrigindo "Eletrunicos", "Eletronicoz", etc).
-  - Tudo que iniciava com o radical `"PROP"` virou **"PROPULSAO"** (corrigindo "Propulção", "Propulssão", etc).
-  - Tudo que continha o miolo `"NCOR"` virou **"ANCORAGEM"** (isso foi crucial para capturar tanto as variáveis que começam com 'A' como "Ancorajen" e "Ancoraguem", quanto as que começavam com 'E', como "Encoragem").
-  - Qualquer outro valor residual cairia em um grupo genérico ("OUTROS").
+A limpeza foi realizada diretamente no SQL através da normalização e padronização dos nomes das categorias presentes na tabela produtos_raw.
 
-### 2. Qual lógica utilizou para filtrar os clientes com diversidade mínima?
-Após juntar o histórico de vendas com a base de categorias padronizadas, realizei um agrupamento (`GROUP BY`) focado no identificador do cliente (`id_client`). 
+Primeiramente, foi aplicada uma normalização textual utilizando UPPER() para converter todos os caracteres para maiúsculas e REPLACE() para remover espaços internos, reduzindo inconsistências causadas por diferenças de formatação.
 
-Dentro desse agrupamento, além de somar o faturamento e contar a frequência, apliquei uma **contagem distinta de categorias** que apareceram no histórico do cliente. 
-- No SQL: utilizei a função agregadora `COUNT(DISTINCT categoria_consolidada)`. 
-- No Python (Pandas): utilizei a função agregadora `.nunique()`. 
+Após essa normalização, foi utilizado um CASE WHEN com padrões (LIKE) para consolidar variações de escrita em uma única categoria padronizada:
 
-Isso gerou uma coluna numérica para cada cliente representando quantas categorias diferentes ele experimentou. A lógica final foi simplesmente isolar essa métrica por meio de um filtro clássico (cláusula `WHERE` no SQL ou filtro booleano no Python), exigindo que a "diversidade_categorias" fosse `>= 3`.
+Valores iniciados por "ELETR" foram classificados como ELETRONICOS
+Valores iniciados por "PROP" foram classificados como PROPULSAO
+Valores contendo "NCOR" foram classificados como ANCORAGEM
 
-### 3. Como garantiu que a contagem de itens refletisse apenas os Top 10?
-O processo exigiu isolar os 10 clientes ("Fiéis") do resto da base antes da agregação final. Fizemos isso em duas etapas:
+Qualquer categoria que não atendesse a esses padrões foi classificada como OUTROS, evitando perda de registros.
 
-1. **Criação da Lista VIP:** Peguei os clientes já filtrados pela diversidade, calculei o Ticket Médio (Total Gasto / Frequência) e os ordenei do maior para o menor. Utilizei o ID em ordem crescente para critério de desempate e cortei a lista no décimo registro (`LIMIT 10` no SQL e `.head(10)` no Pandas).
-2. **Garantia de Unicidade dos Produtos:** Antes de calcular os volumes, garanti que o catálogo de produtos possuísse apenas IDs únicos. Se fizéssemos a junção (`Merge`/`JOIN`) com produtos duplicados no catálogo, ocorrerá uma "explosão cartesiana", multiplicando transações e inflando a contagem de itens de forma irreal.
-3. **Filtro Estrito no Dataset Principal:** Com essa pequena "lista" contendo apenas os 10 IDs VIPs em mãos, voltei ao dataset bruto de vendas e fiz uma triagem. 
-   - No SQL, isso se deu através de um `INNER JOIN` entre as transações de venda e a tabela virtual (`CTE`) dos clientes de elite. 
-   
-Essa operação atua como um funil: qualquer venda registrada que não pertencesse a um dos 10 IDs da lista VIP era imediatamente descartada. Só com os dados perfeitamente isolados e deduplicados para esse grupo é que agrupei novamente pela categoria do produto e realizei a soma da quantidade comprada (`SUM(qtd)`).
+2. Qual lógica utilizou para filtrar os clientes com diversidade mínima?
+
+Após a padronização das categorias, foi realizada uma junção entre a tabela de vendas (vendas_2023_2024) e a tabela de categorias limpas.
+
+Em seguida, os dados foram agregados por cliente (GROUP BY id_client) para calcular as métricas exigidas:
+
+Faturamento Total: SUM(total)
+Frequência de compra: COUNT(id)
+Ticket Médio: SUM(total) / COUNT(id)
+Diversidade de Categorias: COUNT(DISTINCT categoria_consolidada)
+
+A diversidade foi calculada utilizando COUNT(DISTINCT ...), garantindo que apenas categorias diferentes fossem consideradas.
+
+Por fim, foi aplicado um filtro para selecionar apenas clientes que compraram em três ou mais categorias distintas, utilizando a condição:
+
+diversidade_categorias >= 3
+3. Como garantiu que a contagem de itens refletisse apenas os Top 10?
+
+Após o cálculo das métricas por cliente, foi criada uma CTE chamada clientes_elite, responsável por armazenar os 10 clientes com maior Ticket Médio, respeitando também o critério de desempate por id_client em ordem crescente.
+
+Esse ranking foi obtido através da ordenação:
+
+ticket_medio DESC
+id_client ASC
+
+seguido da limitação do resultado com LIMIT 10.
+
+Na etapa final, as vendas foram filtradas utilizando um INNER JOIN entre a tabela de vendas e a CTE clientes_elite. Dessa forma, apenas as transações pertencentes aos clientes do Top 10 foram consideradas na agregação final.
+
+Com os dados já restritos a esse grupo, foi realizada a soma da quantidade de itens vendidos (SUM(qtd)) por categoria, permitindo identificar qual categoria concentrou o maior volume de produtos adquiridos pelos clientes de elite.
