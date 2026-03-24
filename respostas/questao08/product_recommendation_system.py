@@ -1,9 +1,3 @@
-"""
-Questão 8.1 - Motor de Recomendação
-Cenário: Identificar produtos recomendados para acompanhar o item 
-"GPS Garmin Vortex Maré Drift" baseado no histórico de compras dos clientes.
-"""
-
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from pathlib import Path
@@ -21,9 +15,6 @@ def recomendacao_produtos():
     df_produtos = pd.read_csv(produtos_path)
     df_clientes = pd.read_json(clientes_path)
     
-    # -------------------------------------------------------------
-    # 1. Limpeza e Filtros Iniciais
-    # -------------------------------------------------------------
     # Garantir que estamos utilizando apenas vendas de clientes válidos no CRM
     clientes_validos = df_clientes['code'].unique()
     df_vendas = df_vendas[df_vendas['id_client'].isin(clientes_validos)].copy()
@@ -63,10 +54,8 @@ def recomendacao_produtos():
     
     print("4. Gerando Ranking de Recomendações...\n")
     
-    # Definir o produto de referência
     produto_alvo = "GPS Garmin Vortex Maré Drift"
     
-    # Encontrar o ID correspondente ao produto na base de catálogo
     id_alvo = df_produtos.loc[df_produtos['name'] == produto_alvo, 'code'].values
     
     if len(id_alvo) == 0:
@@ -78,7 +67,6 @@ def recomendacao_produtos():
     # Extrair os scores de similaridade do produto alvo com todos os outros
     similaridades_alvo = df_similaridade[id_alvo]
     
-    # Remover o próprio produto alvo da recomendação e ordenar as similaridades do maior para o menor
     similaridades_alvo = similaridades_alvo.drop(id_alvo).sort_values(ascending=False)
     
     # Selecionar os top 5 produtos mais similares
