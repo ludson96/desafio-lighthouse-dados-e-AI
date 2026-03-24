@@ -2,7 +2,6 @@ import pandas as pd
 from pathlib import Path
 
 def padronizar_categoria(categoria):
-    """Função auxiliar para padronizar os erros de digitação nas categorias."""
     # Remove espaços e transforma em letras minúsculas
     cat_limpa = str(categoria).lower().replace(" ", "")
     
@@ -21,7 +20,6 @@ def normalizar_dados():
 
     data_path = BASE_DIR / "data" / "raw" / "produtos_raw.csv"
 
-    # Carregar o dataset sem aplicar nenhum tratamento
     df = pd.read_csv(data_path)
     
     # Parte 1 — Padronize os nomes das categorias de produtos
@@ -38,15 +36,17 @@ def normalizar_dados():
     # Usamos keep='first' (padrão) para manter a primeira ocorrência
     df = df.drop_duplicates(ignore_index=True)
     
-    # Demonstrando o resultado
     print("--- Dados normalizados com sucesso! ---")
     print(f"Produtos duplicados removidos: {duplicadas_removidas}")
     print(f"Total de linhas após a remoção de duplicatas: {len(df)}")
     print("\nVisualização das primeiras linhas:")
     print(df.head())
     
-    # Para salvar as alterações em um novo arquivo
+    # Salva as alterações em um novo arquivo
     output_path = BASE_DIR / "data" / "processed" / "produtos_processados.csv"
+    
+    # Garante que o diretório de saída exista antes de salvar o arquivo
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
 
 if __name__ == "__main__":
