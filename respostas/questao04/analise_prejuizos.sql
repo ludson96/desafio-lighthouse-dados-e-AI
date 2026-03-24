@@ -1,5 +1,3 @@
--- Questão 4.1 - Código SQL (Análise de Prejuízos Reais)
-
 -- NOTA ARQUITETURAL SOBRE A COTAÇÃO DO BCB:
 -- Como a linguagem SQL não realiza requisições HTTP nativas para APIs externas (Banco Central),
 -- é uma premissa obrigatória de arquitetura de dados que essa informação seja previamente extraída
@@ -19,7 +17,7 @@ WITH Vendas_Com_Custo AS (
         c.product_name,
         c.usd_price,
         ROW_NUMBER() OVER(
-            PARTITION BY v.id, v.id_product 
+            PARTITION BY v.id 
             ORDER BY CAST(c.start_date AS DATE) DESC
         ) AS rn_custo
     FROM vendas_2023_2024 v
@@ -39,7 +37,7 @@ Vendas_Com_Cotacao AS (
         vc.usd_price,
         cb.taxa_cambio,
         ROW_NUMBER() OVER(
-            PARTITION BY vc.id_venda, vc.id_product 
+            PARTITION BY vc.id_venda 
             ORDER BY CAST(cb.data AS DATE) DESC
         ) AS rn_cotacao
     FROM Vendas_Com_Custo vc
@@ -61,9 +59,10 @@ Calculo_Prejuizo AS (
     FROM Vendas_Com_Cotacao
     WHERE rn_cotacao = 1 
 )
--- Passo 4: Agregação por id_produto conforme os requisitos (Foco: Maior prejuízo absoluto)
+-- Passo 4: Agregação por id_produto (Foco: Maior prejuízo absoluto)
 SELECT 
     id_product,
+    MAX(product_name) AS product_name,
     SUM(receita_venda) AS receita_total,
     SUM(prejuizo_transacao) AS prejuizo_total,
     (SUM(prejuizo_transacao) / NULLIF(SUM(receita_venda), 0)) AS percentual_perda
@@ -71,4 +70,4 @@ FROM Calculo_Prejuizo
 GROUP BY 
     id_product
 ORDER BY 
-    percentual_perda DESC;
+    prejuizo_total DESC;
