@@ -17,35 +17,30 @@ O projeto está organizado em pastas, onde cada uma corresponde a uma questão d
 
 <details>
 <summary><strong>📁 Questão 03: Processamento de Dados JSON</strong></summary>
-<br>
 Script que lê um arquivo JSON aninhado contendo custos de importação, achata a estrutura de dados e o converte para um formato tabular em um arquivo CSV.
 <br>
 </details>
 
 <details>
 <summary><strong>📁 Questão 04: Análise de Prejuízo Relativo</strong></summary>
-<br>
 Análise que combina dados de vendas, custos de importação (em USD) e cotações históricas do câmbio (BRL) para identificar o produto com o maior prejuízo financeiro relativo. Utiliza junções temporais (`merge_asof`) para garantir a precisão dos cálculos.
 <br>
 </details>
 
 <details>
 <summary><strong>📁 Questão 06: ETL para Banco de Dados e Análise de Vendas</strong></summary>
-<br>
 Um pipeline ETL (Extração, Transformação e Carga) que limpa, padroniza e carrega dados de vendas e produtos de arquivos CSV para um banco de dados PostgreSQL. A análise textual explica a importância de usar uma tabela calendário para calcular corretamente as médias de vendas, evitando distorções causadas por dias sem faturamento.
 <br>
 </details>
 
 <details>
 <summary><strong>📁 Questão 07: Previsão de Demanda (Baseline)</strong></summary>
-<br>
 Construção de um modelo de previsão de demanda baseline (Média Móvel de 7 dias) para um produto específico. O script realiza o tratamento da série temporal, calcula a previsão, avalia o modelo usando a métrica MAE (Mean Absolute Error) e discute suas limitações, como a incapacidade de capturar sazonalidade.
 <br>
 </details>
 
 <details>
 <summary><strong>📁 Questão 08: Sistema de Recomendação de Produtos</strong></summary>
-<br>
 Implementação de um sistema de recomendação de produtos com base em **Filtragem Colaborativa Item-Item**. O script constrói uma matriz de interação cliente-produto, calcula a similaridade de cosseno entre os produtos e gera um ranking de itens recomendados para quem compra um determinado produto.
 <br>
 </details>
@@ -74,11 +69,10 @@ A organização de diretórios e arquivos foi pensada para separar claramente os
 
 <details>
 <summary><strong>📋 Pré-requisitos</strong></summary>
-<br>
+
 - Python 3.9+
 - Git
 - Docker (necessário para a Questão 06)
-<br>
 </details>
 
 <details>
@@ -89,6 +83,7 @@ A organização de diretórios e arquivos foi pensada para separar claramente os
 
     ```bash
     git clone https://github.com/ludson96/desafio-lighthouse-dados-e-AI.git
+    
     cd desafio-lighthouse-dados-e-AI
     ```
 
